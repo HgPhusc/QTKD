@@ -1,0 +1,10 @@
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+*.suo
+TestResults/
+# Không commit file chứa mật khẩu
+appsettings.*.local.json
+secrets.json
