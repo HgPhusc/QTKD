@@ -1,13 +1,14 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using QTKD.Api.Data;
+using QTKD.Api.Middleware;
 using QTKD.Api.Repositories;
 using QTKD.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
-    // Trả Status dạng chữ ("Draft") thay vì số
+    // Nhận/trả Status dạng chữ ("Draft") thay vì số
     .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -19,10 +20,18 @@ builder.Services.AddDbContext<QtkdDbContext>(options =>
 // Controller -> Service -> Repository -> DbContext
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<IContractRepository, ContractRepository>();
+builder.Services.AddScoped<IPriceListRepository, PriceListRepository>();
 builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IContractService, ContractService>();
+builder.Services.AddScoped<IPriceListService, PriceListService>();
+
+// Phản hồi lỗi thống nhất (ProblemDetails)
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {
@@ -30,6 +39,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.MapControllers();
 app.Run();

@@ -23,6 +23,7 @@ public class QtkdDbContext(DbContextOptions<QtkdDbContext> options) : DbContext(
             e.Property(x => x.ContractNo).HasMaxLength(30).IsRequired();
             e.HasIndex(x => x.ContractNo).IsUnique();
             e.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+            e.Property(x => x.Content).HasMaxLength(2000);
 
             // Quan hệ Contract – Customer (n–1)
             e.HasOne(x => x.Customer)
